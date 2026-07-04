@@ -4,7 +4,6 @@ import { FiBell, FiCheck, FiTrash2, FiFilter, FiSettings } from 'react-icons/fi'
 import toast from 'react-hot-toast';
 import { mockNotifications } from '../../data/mockNotifications';
 import Badge from '../../components/Badge';
-import Avatar from '../../components/Avatar';
 
 const getNotificationColor = (type: string): 'success' | 'warning' | 'danger' | 'info' | 'gray' => {
   switch (type) {

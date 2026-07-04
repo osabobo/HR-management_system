@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area } from 'recharts';
+import { motion } from 'framer-motion';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area, Legend } from 'recharts';
 import { FiCpu, FiAlertTriangle, FiCheckCircle, FiTrendingUp, FiTrendingDown, FiMinus, FiZap } from 'react-icons/fi';
 import { mockPredictions, predictionTimeline } from '../../data/mockPredictions';
 import type { AIPrediction } from '../../data/mockPredictions';
-import { mockEmployees } from '../../data/mockEmployees';
 import Badge from '../../components/Badge';
 import Avatar from '../../components/Avatar';
 import toast from 'react-hot-toast';

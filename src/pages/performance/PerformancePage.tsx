@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { LineChart, Line, BarChart, Bar, RadarChart, Radar, PolarGrid, PolarAngleAxis, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
+import { LineChart, Line, BarChart, Bar, RadarChart, Radar, PolarGrid, PolarAngleAxis, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { FiPlus, FiEye, FiEdit } from 'react-icons/fi';
 import { mockPerformance, performanceTrend, departmentPerformance } from '../../data/mockPerformance';
 import type { PerformanceReview } from '../../data/mockPerformance';
+import Avatar from '../../components/Avatar';
+import Badge from '../../components/Badge';
+import Modal from '../../components/Modal';
 import toast from 'react-hot-toast';
 
 const statusVariant = (s: string): 'success' | 'warning' | 'danger' => s === 'Completed' ? 'success' : s === 'Pending' ? 'warning' : 'danger';

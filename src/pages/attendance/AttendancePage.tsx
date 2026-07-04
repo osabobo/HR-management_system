@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
-import { FiCalendar, FiUserCheck, FiUserX, FiClock, FiAlertTriangle } from 'react-icons/fi';
+import { FiCalendar, FiUserCheck, FiUserX, FiClock } from 'react-icons/fi';
 import { mockAttendance, attendanceTrendData } from '../../data/mockAttendance';
 import Badge from '../../components/Badge';
 import Avatar from '../../components/Avatar';

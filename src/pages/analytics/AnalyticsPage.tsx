@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import {
-  AreaChart, Area, BarChart, Bar, LineChart, Line, ScatterChart, Scatter,
+  AreaChart, Area, BarChart, Bar, LineChart, Line,
   PieChart, Pie, Cell, RadarChart, Radar, PolarGrid, PolarAngleAxis,
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend,
 } from 'recharts';
@@ -62,7 +62,7 @@ const AnalyticsPage: React.FC = () => {
           <h3 style={{ fontWeight: 700, fontSize: '.9rem', color: 'var(--text-primary)', marginBottom: 16 }}>Performance Distribution</h3>
           <ResponsiveContainer width="100%" height={200}>
             <PieChart>
-              <Pie data={performanceDistribution} cx="50%" cy="50%" outerRadius={75} paddingAngle={3} dataKey="value" label={({ name, percent }) => `${(percent * 100).toFixed(0)}%`} labelLine={false}>
+              <Pie data={performanceDistribution} cx="50%" cy="50%" outerRadius={75} paddingAngle={3} dataKey="value" label={({ percent }) => `${((percent ?? 0) * 100).toFixed(0)}%`} labelLine={false}>
                 {performanceDistribution.map((_, i) => <Cell key={i} fill={COLORS[i]} />)}
               </Pie>
               <Tooltip />
@@ -82,7 +82,7 @@ const AnalyticsPage: React.FC = () => {
           <h3 style={{ fontWeight: 700, fontSize: '.9rem', color: 'var(--text-primary)', marginBottom: 16 }}>Gender Distribution</h3>
           <ResponsiveContainer width="100%" height={200}>
             <PieChart>
-              <Pie data={genderDistribution} cx="50%" cy="50%" outerRadius={75} paddingAngle={3} dataKey="value" label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`} labelLine={false}>
+              <Pie data={genderDistribution} cx="50%" cy="50%" outerRadius={75} paddingAngle={3} dataKey="value" label={({ name, percent }) => `${name} ${((percent ?? 0) * 100).toFixed(0)}%`} labelLine={false}>
                 <Cell fill="#4f46e5" />
                 <Cell fill="#ec4899" />
               </Pie>
@@ -129,7 +129,10 @@ const AnalyticsPage: React.FC = () => {
               <CartesianGrid strokeDasharray="3 3" stroke="rgba(148,163,184,.1)" />
               <XAxis type="number" tick={{ fontSize: 10 }} axisLine={false} tickLine={false} tickFormatter={v => `₦${(v / 1000).toFixed(0)}k`} />
               <YAxis type="category" dataKey="dept" tick={{ fontSize: 10 }} axisLine={false} tickLine={false} width={60} />
-              <Tooltip formatter={(v: number) => `₦${v.toLocaleString()}`} />
+              <Tooltip formatter={(value) => {
+                const numericValue = typeof value === 'number' ? value : Number(value ?? 0);
+                return `₦${numericValue.toLocaleString()}`;
+              }} />
               <Bar dataKey="avg" fill="#06b6d4" radius={[0, 4, 4, 0]} name="Avg Salary" />
             </BarChart>
           </ResponsiveContainer>

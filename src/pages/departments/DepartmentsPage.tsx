@@ -6,8 +6,6 @@ import Modal from '../../components/Modal';
 import Badge from '../../components/Badge';
 import toast from 'react-hot-toast';
 
-const iconColor: Record<string, string> = { Engineering: '#4f46e5', 'Human Resources': '#10b981', Sales: '#f59e0b', Finance: '#06b6d4', 'Customer Support': '#8b5cf6', Marketing: '#f43f5e', Operations: '#14b8a6' };
-
 const DepartmentsPage: React.FC = () => {
   const [showAdd, setShowAdd] = useState(false);
   const [newName, setNewName] = useState('');

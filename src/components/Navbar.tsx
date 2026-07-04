@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { FiBell, FiSun, FiMoon, FiSearch, FiChevronDown, FiUser, FiSettings, FiLogOut } from 'react-icons/fi';
+import { FiBell, FiSun, FiMoon, FiChevronDown, FiUser, FiSettings, FiLogOut } from 'react-icons/fi';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import { mockNotifications } from '../data/mockNotifications';

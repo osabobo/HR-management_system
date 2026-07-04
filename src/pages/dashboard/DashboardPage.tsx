@@ -7,7 +7,7 @@ import {
 import { motion } from 'framer-motion';
 import {
   FiUsers, FiBriefcase, FiUserCheck, FiUserPlus, FiStar, FiTrendingUp,
-  FiCalendar, FiCpu, FiArrowRight, FiBell, FiClock, FiCheckCircle, FiAlertTriangle,
+  FiCalendar, FiCpu, FiArrowRight, FiBell, FiCheckCircle, FiAlertTriangle,
 } from 'react-icons/fi';
 import StatCard from '../../components/StatCard';
 import { mockEmployees } from '../../data/mockEmployees';
@@ -165,7 +165,7 @@ const DashboardPage: React.FC = () => {
           <ResponsiveContainer width="100%" height={180}>
             <PieChart>
               <Pie data={performanceDistribution} cx="50%" cy="50%" innerRadius={50} outerRadius={75} paddingAngle={4} dataKey="value">
-                {performanceDistribution.map((entry, i) => <Cell key={i} fill={PERF_COLORS[i]} />)}
+                {performanceDistribution.map((_, i) => <Cell key={i} fill={PERF_COLORS[i]} />)}
               </Pie>
               <Tooltip />
             </PieChart>
@@ -185,7 +185,7 @@ const DashboardPage: React.FC = () => {
           <h3 style={{ fontSize: '.9rem', fontWeight: 700, color: 'var(--text-primary)', marginBottom: 16 }}>Gender Distribution</h3>
           <ResponsiveContainer width="100%" height={180}>
             <PieChart>
-              <Pie data={genderDistribution} cx="50%" cy="50%" outerRadius={75} paddingAngle={4} dataKey="value" label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`} labelLine={false}>
+              <Pie data={genderDistribution} cx="50%" cy="50%" outerRadius={75} paddingAngle={4} dataKey="value" label={({ name, percent }) => `${name} ${((percent ?? 0) * 100).toFixed(0)}%`} labelLine={false}>
                 {genderDistribution.map((_, i) => <Cell key={i} fill={GENDER_COLORS[i]} />)}
               </Pie>
               <Tooltip />
