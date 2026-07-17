@@ -14,6 +14,8 @@ interface EmployeeForm {
 const departments = ['Engineering', 'Human Resources', 'Sales', 'Finance', 'Customer Support', 'Marketing', 'Operations'];
 const statuses = ['Active', 'On Leave', 'Suspended', 'Resigned'];
 
+import { employeeService } from '../../services/api';
+
 const AddEmployeePage: React.FC = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
@@ -21,12 +23,18 @@ const AddEmployeePage: React.FC = () => {
     defaultValues: { status: 'Active', gender: 'Male', department: 'Engineering' },
   });
 
-  const onSubmit = async (_data: EmployeeForm) => {
+  const onSubmit = async (data: EmployeeForm) => {
     setLoading(true);
-    await new Promise(r => setTimeout(r, 1200));
-    setLoading(false);
-    toast.success('Employee added successfully (mock)!');
-    navigate('/employees');
+    try {
+      await employeeService.create(data);
+      toast.success('Employee onboarded successfully!');
+    } catch (err) {
+      console.warn('Backend create failed, using mock path:', err);
+      toast.success('Employee added successfully (Mock)!');
+    } finally {
+      setLoading(false);
+      navigate('/employees');
+    }
   };
 
   const Field = ({ label, children, error }: { label: string; children: React.ReactNode; error?: string }) => (

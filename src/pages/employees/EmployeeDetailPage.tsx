@@ -1,8 +1,11 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { FiArrowLeft, FiEdit } from 'react-icons/fi';
 import { mockEmployees } from '../../data/mockEmployees';
 import { mockPerformance } from '../../data/mockPerformance';
+import type { Employee } from '../../data/mockEmployees';
+import type { PerformanceReview } from '../../data/mockPerformance';
+import { employeeService, performanceService } from '../../services/api';
 import Avatar from '../../components/Avatar';
 import Badge from '../../components/Badge';
 import { RadarChart, Radar, PolarGrid, PolarAngleAxis, ResponsiveContainer, Tooltip } from 'recharts';
@@ -11,8 +14,40 @@ import toast from 'react-hot-toast';
 const EmployeeDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const emp = mockEmployees.find(e => e.id === id);
-  const review = mockPerformance.find(r => r.employeeId === id);
+  const [emp, setEmp] = useState<Employee | null>(null);
+  const [review, setReview] = useState<PerformanceReview | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!id) return;
+    
+    setLoading(true);
+    // Find initial mock data in case backend fails
+    const mockEmp = mockEmployees.find(e => e.id === id) || null;
+    const mockReview = mockPerformance.find(r => r.employeeId === id) || null;
+
+    Promise.all([
+      employeeService.getById(id).then(res => setEmp(res.data)).catch(() => {}),
+      performanceService.getByEmployee(id).then(res => {
+        if (Array.isArray(res.data) && res.data.length > 0) {
+          setReview(res.data[0]);
+        }
+      }).catch(() => {})
+    ]).finally(() => {
+      // Fallback if state is not set by backend
+      setEmp(prev => prev || mockEmp);
+      setReview(prev => prev || mockReview);
+      setLoading(false);
+    });
+  }, [id]);
+
+  if (loading) {
+    return (
+      <div style={{ textAlign: 'center', padding: '80px 24px' }}>
+        <p style={{ fontSize: '1rem', color: 'var(--text-secondary)' }}>Loading employee profile…</p>
+      </div>
+    );
+  }
 
   if (!emp) return (
     <div style={{ textAlign: 'center', padding: '80px 24px' }}>

@@ -1,5 +1,6 @@
 import { createContext, useContext, useState } from 'react';
 import type { ReactNode } from 'react';
+import { authService } from '../services/api';
 
 export type UserRole = 'Administrator' | 'HR Manager' | 'Employee';
 
@@ -41,7 +42,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return saved ? JSON.parse(saved) : null;
   });
 
-  const login = async (email: string, _password: string, role: UserRole): Promise<boolean> => {
+  const login = async (email: string, password: string, role: UserRole): Promise<boolean> => {
+    try {
+      const res = await authService.login(email, password, role);
+      if (res.data && res.data.success) {
+        setUser(res.data.user);
+        localStorage.setItem('hrms-user', JSON.stringify(res.data.user));
+        return true;
+      }
+    } catch (error) {
+      console.warn('Backend login failed, using mock auth fallback:', error);
+    }
+    
     await new Promise(r => setTimeout(r, 1200)); // simulate network
     const found = mockUsers[email] || {
       id: 'U_GUEST', name: email.split('@')[0].replace('.', ' ').replace(/\b\w/g, c => c.toUpperCase()),
@@ -53,7 +65,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return true;
   };
 
-  const register = async (name: string, email: string, _password: string, role: UserRole): Promise<boolean> => {
+  const register = async (name: string, email: string, password: string, role: UserRole): Promise<boolean> => {
+    try {
+      const res = await authService.register(name, email, password, role);
+      if (res.data && res.data.success) {
+        setUser(res.data.user);
+        localStorage.setItem('hrms-user', JSON.stringify(res.data.user));
+        return true;
+      }
+    } catch (error) {
+      console.warn('Backend registration failed, using mock auth fallback:', error);
+    }
+
     await new Promise(r => setTimeout(r, 1400));
     const newUser: AuthUser = {
       id: 'U_NEW', name, email, role,
@@ -67,6 +90,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const logout = () => {
+    authService.logout().catch(() => {});
     setUser(null);
     localStorage.removeItem('hrms-user');
   };

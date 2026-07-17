@@ -1,20 +1,56 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area, Legend } from 'recharts';
 import { FiCpu, FiAlertTriangle, FiCheckCircle, FiTrendingUp, FiTrendingDown, FiMinus, FiZap } from 'react-icons/fi';
 import { mockPredictions, predictionTimeline } from '../../data/mockPredictions';
 import type { AIPrediction } from '../../data/mockPredictions';
+import { mockEmployees } from '../../data/mockEmployees';
+import type { Employee } from '../../data/mockEmployees';
 import Badge from '../../components/Badge';
 import Avatar from '../../components/Avatar';
 import toast from 'react-hot-toast';
+import { checkHealth } from '../../services/predictions';
+import { predictionService } from '../../services/api';
 
 const predictionColor = (p: string) => p === 'High Performer' ? '#10b981' : p === 'Medium Performer' ? '#f59e0b' : '#ef4444';
 const predictionVariant = (p: string): 'success' | 'warning' | 'danger' => p === 'High Performer' ? 'success' : p === 'Medium Performer' ? 'warning' : 'danger';
 const predictionIcon = (p: string) => p === 'High Performer' ? <FiTrendingUp /> : p === 'Low Performer' ? <FiTrendingDown /> : <FiMinus />;
 
+// Builds a placeholder prediction card for an employee who hasn't had an AI prediction run yet
+const buildDefaultPrediction = (emp: Employee): AIPrediction => {
+  const score = emp.performanceScore;
+  const prediction: AIPrediction['prediction'] = score >= 85 ? 'High Performer' : score >= 70 ? 'Medium Performer' : 'Low Performer';
+  return {
+    id: `TEMP-${emp.id}`,
+    employeeId: emp.id,
+    employeeName: emp.name,
+    department: emp.department,
+    predictionDate: new Date().toISOString().slice(0, 10),
+    prediction,
+    confidence: score,
+    attendanceScore: score,
+    experienceScore: Math.min(100, emp.experience * 10),
+    kpiScore: score,
+    trainingScore: Math.min(100, emp.trainingCompleted * 8),
+    leaveImpact: 10,
+    previousRating: score,
+    featureImportance: [
+      { feature: 'KPI Score', impact: 30, direction: 'positive' },
+      { feature: 'Attendance', impact: 25, direction: 'positive' },
+      { feature: 'Experience', impact: 20, direction: 'positive' },
+      { feature: 'Training Completed', impact: 15, direction: 'positive' },
+      { feature: 'Leave Days', impact: 10, direction: 'negative' },
+    ],
+    recommendations: ['No AI prediction has been generated yet for this employee. Click "Run Prediction" to analyse their current data.'],
+    riskFactors: ['Prediction pending — click "Run Prediction" to generate a full risk analysis.'],
+  };
+};
+
 const AIPredictionPage: React.FC = () => {
+  const [predictions, setPredictions] = useState<AIPrediction[]>(mockPredictions);
   const [selected, setSelected] = useState<AIPrediction>(mockPredictions[0]);
   const [running, setRunning] = useState(false);
+  const [mlAvailable, setMlAvailable] = useState(false);
   const [inputs, setInputs] = useState({
     attendance: selected.attendanceScore,
     experience: selected.experienceScore,
@@ -24,11 +60,84 @@ const AIPredictionPage: React.FC = () => {
     previousRating: selected.previousRating,
   });
 
+  useEffect(() => {
+    // Check if ML backend is available
+    checkHealth()
+      .then(() => setMlAvailable(true))
+      .catch(() => {
+        setMlAvailable(false);
+      });
+
+    predictionService.getAll()
+      .then(res => {
+        if (Array.isArray(res.data) && res.data.length > 0) {
+          // De-duplicate by employeeId, keeping the most recent record for each employee
+          const dedupedMap = new Map<string, AIPrediction>();
+          res.data.forEach((p: AIPrediction) => dedupedMap.set(p.employeeId, p));
+          const deduped = Array.from(dedupedMap.values());
+          setPredictions(deduped);
+        }
+      })
+      .catch(err => {
+        console.warn('Could not load predictions from backend, using mock:', err);
+      });
+  }, []);
+
   const runPrediction = async () => {
     setRunning(true);
-    await new Promise(r => setTimeout(r, 2200));
-    setRunning(false);
-    toast.success('AI prediction completed!', { icon: '🤖' });
+    try {
+      if (mlAvailable) {
+        // Call real ML API and save it
+        const res = await predictionService.predict(selected.employeeId, {
+          attendance: inputs.attendance,
+          experience: inputs.experience,
+          kpi: inputs.kpi,
+          training: inputs.training,
+          leave: inputs.leave,
+          previousRating: inputs.previousRating,
+        });
+
+        const result = res.data;
+        // Update selected and predictions list
+        setPredictions(prev => prev.map(p => p.employeeId === selected.employeeId ? result : p));
+        setSelected(result);
+
+        toast.success('AI prediction completed!', { icon: '🤖' });
+      } else {
+        // Fallback to mock behavior
+        await new Promise(r => setTimeout(r, 2200));
+
+        const avgScore = Math.round((inputs.attendance + inputs.kpi + inputs.training + (100 - inputs.leave)) / 4);
+        const mockPrediction: AIPrediction['prediction'] = avgScore >= 85 ? 'High Performer' : avgScore >= 65 ? 'Medium Performer' : 'Low Performer';
+        const mockResult: AIPrediction = {
+          ...selected,
+          id: selected.id.startsWith('TEMP-') ? `AI-${selected.employeeId}` : selected.id,
+          confidence: Math.min(99, avgScore),
+          prediction: mockPrediction,
+          attendanceScore: inputs.attendance,
+          experienceScore: inputs.experience,
+          kpiScore: inputs.kpi,
+          trainingScore: inputs.training,
+          leaveImpact: inputs.leave,
+          previousRating: inputs.previousRating,
+        };
+
+        setPredictions(prev => {
+          const exists = prev.some(p => p.employeeId === mockResult.employeeId);
+          return exists
+            ? prev.map(p => p.employeeId === mockResult.employeeId ? mockResult : p)
+            : [...prev, mockResult];
+        });
+        setSelected(mockResult);
+
+        toast.success('AI prediction completed', { icon: '🤖' });
+      }
+    } catch (error) {
+      console.error('Prediction error:', error);
+      toast.error('Prediction failed. Please try again.', { icon: '❌' });
+    } finally {
+      setRunning(false);
+    }
   };
 
   return (
@@ -55,58 +164,140 @@ const AIPredictionPage: React.FC = () => {
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '300px 1fr', gap: 20 }}>
+
         {/* Employee Selector */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+
           <div className="card" style={{ padding: 16 }}>
-            <h3 style={{ fontWeight: 700, fontSize: '.85rem', color: 'var(--text-primary)', marginBottom: 12 }}>Select Employee</h3>
-            {mockPredictions.map(p => (
-              <button key={p.id} onClick={() => { setSelected(p); setInputs({ attendance: p.attendanceScore, experience: p.experienceScore, kpi: p.kpiScore, training: p.trainingScore, leave: p.leaveImpact, previousRating: p.previousRating }); }}
-                style={{ width: '100%', display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', borderRadius: 10, marginBottom: 6, border: selected.id === p.id ? '2px solid #4f46e5' : '2px solid transparent', background: selected.id === p.id ? 'rgba(79,70,229,.08)' : 'transparent', cursor: 'pointer', transition: 'all .2s' }}>
-                <Avatar initials={p.employeeName.split(' ').map(n => n[0]).join('')} size="sm" />
-                <div style={{ textAlign: 'left', flex: 1 }}>
-                  <p style={{ fontSize: '.8rem', fontWeight: 600, color: 'var(--text-primary)' }}>{p.employeeName}</p>
-                  <p style={{ fontSize: '.7rem', color: 'var(--text-muted)' }}>{p.department}</p>
-                </div>
-                <span style={{ width: 8, height: 8, borderRadius: '50%', background: predictionColor(p.prediction), flexShrink: 0 }} />
-              </button>
-            ))}
+
+            <h3
+              style={{
+                fontWeight: 700,
+                fontSize: '.85rem',
+                color: 'var(--text-primary)',
+                marginBottom: 12
+              }}
+            >
+              Select Employee
+            </h3>
+
+            <select
+              value={selected.employeeId}
+              onChange={(e) => {
+
+                const employeeId = e.target.value;
+                const employee = mockEmployees.find(emp => emp.id === employeeId);
+
+                if (!employee) return;
+
+                const existingPrediction = predictions.find(p => p.employeeId === employeeId);
+                const next = existingPrediction ?? buildDefaultPrediction(employee);
+
+                setSelected(next);
+
+                setInputs({
+                  attendance: next.attendanceScore,
+                  experience: next.experienceScore,
+                  kpi: next.kpiScore,
+                  training: next.trainingScore,
+                  leave: next.leaveImpact,
+                  previousRating: next.previousRating,
+                });
+
+              }}
+              style={{
+                width: '100%',
+                padding: '12px 14px',
+                borderRadius: '10px',
+                border: '1px solid #d1d5db',
+                background: '#fff',
+                color: '#111827',
+                fontSize: '.9rem',
+                fontWeight: 500,
+                cursor: 'pointer',
+                outline: 'none'
+              }}
+            >
+
+              {mockEmployees.map((employee) => (
+
+                <option
+                  key={employee.id}
+                  value={employee.id}
+                >
+                  {employee.name} ({employee.department})
+                </option>
+
+              ))}
+
+            </select>
+
+            {/* Selected Employee Information */}
+
+            <div
+              style={{
+                marginTop: 20,
+                display: 'flex',
+                alignItems: 'center',
+                gap: 12,
+                padding: 12,
+                borderRadius: 10,
+                background: 'rgba(79,70,229,.05)'
+              }}
+            >
+
+              <Avatar
+                initials={selected.employeeName
+                  .split(' ')
+                  .map(n => n[0])
+                  .join('')}
+                size="md"
+              />
+
+              <div style={{ flex: 1 }}>
+
+                <p
+                  style={{
+                    margin: 0,
+                    fontWeight: 700,
+                    fontSize: '.9rem',
+                    color: 'var(--text-primary)'
+                  }}
+                >
+                  {selected.employeeName}
+                </p>
+
+                <p
+                  style={{
+                    margin: '4px 0',
+                    fontSize: '.8rem',
+                    color: 'var(--text-muted)'
+                  }}
+                >
+                  {selected.department}
+                </p>
+
+              </div>
+
+              <span
+                style={{
+                  width: 12,
+                  height: 12,
+                  borderRadius: '50%',
+                  background: predictionColor(selected.prediction)
+                }}
+              />
+
+            </div>
+
           </div>
 
-          {/* Inputs Panel */}
-          <div className="card" style={{ padding: 16 }}>
-            <h3 style={{ fontWeight: 700, fontSize: '.85rem', color: 'var(--text-primary)', marginBottom: 14 }}>Input Parameters</h3>
-            {[
-              { key: 'attendance', label: 'Attendance Score' },
-              { key: 'experience', label: 'Experience Score' },
-              { key: 'kpi', label: 'KPI Score' },
-              { key: 'training', label: 'Training Score' },
-              { key: 'leave', label: 'Leave Impact' },
-              { key: 'previousRating', label: 'Previous Rating' },
-            ].map(({ key, label }) => (
-              <div key={key} style={{ marginBottom: 12 }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-                  <label style={{ fontSize: '.72rem', fontWeight: 600, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '.04em' }}>{label}</label>
-                  <span style={{ fontSize: '.75rem', fontWeight: 700, color: 'var(--text-primary)' }}>{inputs[key as keyof typeof inputs]}</span>
-                </div>
-                <input type="range" min={0} max={100} value={inputs[key as keyof typeof inputs]}
-                  onChange={e => setInputs(prev => ({ ...prev, [key]: Number(e.target.value) }))}
-                  style={{ width: '100%', accentColor: '#4f46e5' }} />
-              </div>
-            ))}
-            <button className="btn btn-primary" style={{ width: '100%', marginTop: 8 }} onClick={runPrediction} disabled={running}>
-              {running ? (
-                <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <span style={{ width: 14, height: 14, border: '2px solid rgba(255,255,255,.3)', borderTopColor: '#fff', borderRadius: '50%', display: 'inline-block', animation: 'spin 1s linear infinite' }} />
-                  Running AI Model…
-                </span>
-              ) : <><FiZap size={15} /> Run Prediction</>}
-            </button>
-          </div>
+          {/* Keep your Input Parameters card here */}
+
         </div>
 
         {/* Result Panel */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-          {/* Prediction Result */}
           <div className="card" style={{ padding: 24, background: `linear-gradient(135deg, ${predictionColor(selected.prediction)}12, ${predictionColor(selected.prediction)}06)`, border: `1px solid ${predictionColor(selected.prediction)}30` }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 20, flexWrap: 'wrap' }}>
               <Avatar initials={selected.employeeName.split(' ').map(n => n[0]).join('')} size="lg" />
@@ -211,6 +402,38 @@ const AIPredictionPage: React.FC = () => {
             </ResponsiveContainer>
           </div>
         </div>
+
+      </div>
+
+      {/* Inputs Panel */}
+      <div className="card" style={{ padding: 16 }}>
+        <h3 style={{ fontWeight: 700, fontSize: '.85rem', color: 'var(--text-primary)', marginBottom: 14 }}>Input Parameters</h3>
+        {[
+          { key: 'attendance', label: 'Attendance Score' },
+          { key: 'experience', label: 'Experience Score' },
+          { key: 'kpi', label: 'KPI Score' },
+          { key: 'training', label: 'Training Score' },
+          { key: 'leave', label: 'Leave Impact' },
+          { key: 'previousRating', label: 'Previous Rating' },
+        ].map(({ key, label }) => (
+          <div key={key} style={{ marginBottom: 12 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+              <label style={{ fontSize: '.72rem', fontWeight: 600, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '.04em' }}>{label}</label>
+              <span style={{ fontSize: '.75rem', fontWeight: 700, color: 'var(--text-primary)' }}>{inputs[key as keyof typeof inputs]}</span>
+            </div>
+            <input type="range" min={0} max={100} value={inputs[key as keyof typeof inputs]}
+              onChange={e => setInputs(prev => ({ ...prev, [key]: Number(e.target.value) }))}
+              style={{ width: '100%', accentColor: '#4f46e5' }} />
+          </div>
+        ))}
+        <button className="btn btn-primary" style={{ width: '100%', marginTop: 8 }} onClick={runPrediction} disabled={running}>
+          {running ? (
+            <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <span style={{ width: 14, height: 14, border: '2px solid rgba(255,255,255,.3)', borderTopColor: '#fff', borderRadius: '50%', display: 'inline-block', animation: 'spin 1s linear infinite' }} />
+              Running AI Model…
+            </span>
+          ) : <><FiZap size={15} /> Run Prediction</>}
+        </button>
       </div>
     </motion.div>
   );

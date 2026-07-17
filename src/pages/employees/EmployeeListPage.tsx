@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FiPlus, FiEye, FiEdit, FiTrash2, FiDownload } from 'react-icons/fi';
 import { motion } from 'framer-motion';
-import { mockEmployees } from '../../data/mockEmployees';
+import { mockEmployees as initialEmployees } from '../../data/mockEmployees';
 import type { Employee } from '../../data/mockEmployees';
+import { employeeService } from '../../services/api';
 import SearchBox from '../../components/SearchBox';
 import Badge from '../../components/Badge';
 import Avatar from '../../components/Avatar';
@@ -19,16 +20,29 @@ const statusVariant = (s: string): 'success' | 'warning' | 'danger' | 'gray' =>
 
 const EmployeeListPage: React.FC = () => {
   const navigate = useNavigate();
+  const [employees, setEmployees] = useState<Employee[]>(initialEmployees);
   const [search, setSearch] = useState('');
   const [deptFilter, setDeptFilter] = useState('All');
   const [statusFilter, setStatusFilter] = useState('All');
   const [page, setPage] = useState(1);
   const [viewEmp, setViewEmp] = useState<Employee | null>(null);
 
-  const departments = ['All', ...Array.from(new Set(mockEmployees.map(e => e.department)))];
+  useEffect(() => {
+    employeeService.getAll()
+      .then(res => {
+        if (Array.isArray(res.data)) {
+          setEmployees(res.data);
+        }
+      })
+      .catch(err => {
+        console.warn('Could not load employees from backend, using mock data:', err);
+      });
+  }, []);
+
+  const departments = ['All', ...Array.from(new Set(employees.map(e => e.department)))];
   const statuses = ['All', 'Active', 'On Leave', 'Suspended', 'Resigned'];
 
-  const filtered = mockEmployees.filter(e => {
+  const filtered = employees.filter(e => {
     const matchSearch = `${e.name} ${e.email} ${e.id} ${e.position}`.toLowerCase().includes(search.toLowerCase());
     const matchDept = deptFilter === 'All' || e.department === deptFilter;
     const matchStatus = statusFilter === 'All' || e.status === statusFilter;
@@ -39,7 +53,16 @@ const EmployeeListPage: React.FC = () => {
   const paginated = filtered.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE);
 
   const handleDelete = (emp: Employee) => {
-    toast.success(`${emp.name} removed (mock).`);
+    employeeService.delete(emp.id)
+      .then(() => {
+        setEmployees(prev => prev.filter(e => e.id !== emp.id));
+        toast.success(`${emp.name} removed successfully.`);
+      })
+      .catch(err => {
+        console.warn('Backend delete failed, falling back to local state:', err);
+        setEmployees(prev => prev.filter(e => e.id !== emp.id));
+        toast.success(`${emp.name} removed (Mock).`);
+      });
   };
 
   return (
@@ -48,8 +71,9 @@ const EmployeeListPage: React.FC = () => {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 24, flexWrap: 'wrap', gap: 12 }}>
         <div>
           <h1 className="page-title">Employees</h1>
-          <p className="page-subtitle">{mockEmployees.length} total employees across {new Set(mockEmployees.map(e => e.department)).size} departments</p>
+          <p className="page-subtitle">{employees.length} total employees across {new Set(employees.map(e => e.department)).size} departments</p>
         </div>
+
         <div style={{ display: 'flex', gap: 10 }}>
           <button className="btn btn-outline btn-sm" onClick={() => toast('Export started (mock)', { icon: '📥' })}>
             <FiDownload size={14} /> Export
