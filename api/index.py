@@ -1,11 +1,17 @@
 from flask import Flask, request, jsonify, make_response
 from flask_cors import CORS
-from model import PerformancePredictionModel
-from database import HRDatabase
 import os
 import csv
 import io
 from datetime import datetime
+
+# Handle both relative and absolute imports for Vercel serverless environment
+try:
+    from .model import PerformancePredictionModel
+    from .database import HRDatabase
+except (ImportError, ValueError):
+    from model import PerformancePredictionModel
+    from database import HRDatabase
 
 app = Flask(__name__)
 # Enable CORS for all routes and origins
