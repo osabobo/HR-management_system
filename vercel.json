@@ -1,8 +1,28 @@
 {
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "env": {
+    "PYTHON_VERSION": "3.11"
+  },
+  "functions": {
+    "api/index.py": {
+      "runtime": "python3.11"
+    }
+  },
   "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "/api"
+    },
     {
       "source": "/(.*)",
       "destination": "/"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "/api/index.py"
     }
   ]
 }
