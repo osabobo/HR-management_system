@@ -23,6 +23,7 @@ const EmployeeListPage: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const isEmployee = user?.role === 'Employee';
+  const isViewOnly = user?.role !== 'Administrator';
   const [employees, setEmployees] = useState<Employee[]>(initialEmployees);
   const [search, setSearch] = useState('');
   const [deptFilter, setDeptFilter] = useState('All');
@@ -81,7 +82,7 @@ const EmployeeListPage: React.FC = () => {
           <button className="btn btn-outline btn-sm" onClick={() => toast('Export started (mock)', { icon: '📥' })}>
             <FiDownload size={14} /> Export
           </button>
-          {!isEmployee && (
+          {!isViewOnly && (
             <button className="btn btn-primary" onClick={() => navigate('/employees/new')}>
               <FiPlus size={16} /> Add Employee
             </button>
@@ -148,8 +149,8 @@ const EmployeeListPage: React.FC = () => {
                     <td>
                       <div style={{ display: 'flex', gap: 4 }}>
                         <button className="btn btn-ghost btn-icon" title="View" onClick={() => setViewEmp(emp)}><FiEye size={15} /></button>
-                        <button className="btn btn-ghost btn-icon" title="Edit" onClick={() => toast('Edit form (mock)', { icon: '✏️' })}><FiEdit size={15} /></button>
-                        <button className="btn btn-ghost btn-icon" title="Delete" style={{ color: '#ef4444' }} onClick={() => handleDelete(emp)}><FiTrash2 size={15} /></button>
+                        {!isViewOnly && <button className="btn btn-ghost btn-icon" title="Edit" onClick={() => toast('Edit form (mock)', { icon: '✏️' })}><FiEdit size={15} /></button>}
+                        {!isViewOnly && <button className="btn btn-ghost btn-icon" title="Delete" style={{ color: '#ef4444' }} onClick={() => handleDelete(emp)}><FiTrash2 size={15} /></button>}
                       </div>
                     </td>
                   </tr>

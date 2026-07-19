@@ -5,8 +5,11 @@ import { mockDepartments } from '../../data/mockDepartments';
 import Modal from '../../components/Modal';
 import Badge from '../../components/Badge';
 import toast from 'react-hot-toast';
+import { useAuth } from '../../context/AuthContext';
 
 const DepartmentsPage: React.FC = () => {
+  const { user } = useAuth();
+  const isViewOnly = user?.role !== 'Administrator';
   const [showAdd, setShowAdd] = useState(false);
   const [newName, setNewName] = useState('');
   const [newHOD, setNewHOD] = useState('');
@@ -27,9 +30,11 @@ const DepartmentsPage: React.FC = () => {
           <h1 className="page-title">Departments</h1>
           <p className="page-subtitle">{mockDepartments.length} active departments in your organisation</p>
         </div>
-        <button className="btn btn-primary" onClick={() => setShowAdd(true)}>
-          <FiPlus size={16} /> Add Department
-        </button>
+        {!isViewOnly && (
+          <button className="btn btn-primary" onClick={() => setShowAdd(true)}>
+            <FiPlus size={16} /> Add Department
+          </button>
+        )}
       </div>
 
       {/* Summary Stats */}

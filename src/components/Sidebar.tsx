@@ -5,22 +5,29 @@ import {
   FiGrid, FiUsers, FiBriefcase, FiCalendar, FiAward,
   FiCpu, FiBarChart2, FiFileText, FiBell, FiSettings,
   FiLogOut, FiChevronLeft, FiChevronRight, FiZap,
+  FiUserPlus, FiGlobe, FiHeart, FiBook, FiMessageSquare, FiNavigation,
 } from 'react-icons/fi';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import toast from 'react-hot-toast';
 
 const navItems = [
-  { path: '/dashboard',    label: 'Dashboard',      icon: FiGrid },
-  { path: '/employees',    label: 'Employees',      icon: FiUsers,    adminOnly: true },
-  { path: '/departments',  label: 'Departments',    icon: FiBriefcase,adminOnly: true },
-  { path: '/attendance',   label: 'Attendance',     icon: FiCalendar },
-  { path: '/performance',  label: 'Performance',    icon: FiAward,    adminOnly: true },
-  { path: '/ai-prediction',label: 'AI Prediction',  icon: FiCpu,      adminOnly: true },
-  { path: '/analytics',    label: 'Analytics',      icon: FiBarChart2 },
-  { path: '/reports',      label: 'Reports',        icon: FiFileText, adminOnly: true },
-  { path: '/notifications',label: 'Notifications',  icon: FiBell },
-  { path: '/settings',     label: 'Settings',       icon: FiSettings },
+  { path: '/dashboard',    label: 'Dashboard',         icon: FiGrid },
+  { path: '/recruitment',  label: 'Recruitment',       icon: FiUserPlus,     adminOnly: true },
+  { path: '/workforce',    label: 'Workforce',         icon: FiGlobe,        adminOnly: true },
+  { path: '/employees',    label: 'Employees',         icon: FiUsers,        adminOnly: true },
+  { path: '/departments',  label: 'Departments',       icon: FiBriefcase,    adminOnly: true },
+  { path: '/diversity',    label: 'Diversity',         icon: FiHeart,        adminOnly: true },
+  { path: '/attendance',   label: 'Attendance',        icon: FiCalendar },
+  { path: '/performance',  label: 'Performance',       icon: FiAward,        adminOnly: true },
+  { path: '/training',     label: 'Training & Dev',    icon: FiBook },
+  { path: '/surveys',      label: 'Surveys',           icon: FiMessageSquare },
+  { path: '/travels',      label: 'Staff Travels',     icon: FiNavigation },
+  { path: '/ai-prediction',label: 'AI Prediction',     icon: FiCpu,          adminOnly: true },
+  { path: '/analytics',    label: 'Analytics',         icon: FiBarChart2 },
+  { path: '/reports',      label: 'HR Reports',        icon: FiFileText,     adminOnly: true },
+  { path: '/notifications',label: 'Notifications',     icon: FiBell },
+  { path: '/settings',     label: 'Settings',          icon: FiSettings },
 ];
 
 const Sidebar: React.FC = () => {

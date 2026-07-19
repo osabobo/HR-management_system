@@ -21,6 +21,12 @@ import AnalyticsPage from '../pages/analytics/AnalyticsPage';
 import ReportsPage from '../pages/reports/ReportsPage';
 import NotificationsPage from '../pages/notifications/NotificationsPage';
 import SettingsPage from '../pages/settings/SettingsPage';
+import RecruitmentPage from '../pages/recruitment/RecruitmentPage';
+import WorkforcePage from '../pages/workforce/WorkforcePage';
+import DiversityPage from '../pages/diversity/DiversityPage';
+import TrainingPage from '../pages/training/TrainingPage';
+import SurveysPage from '../pages/surveys/SurveysPage';
+import TravelsPage from '../pages/travels/TravelsPage';
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { isAuthenticated } = useAuth();
@@ -51,12 +57,18 @@ const AppRoutes: React.FC = () => {
         {/* App routes */}
         <Route element={<ProtectedRoute><MainLayout /></ProtectedRoute>}>
           <Route path="/dashboard" element={<DashboardPage />} />
+          <Route path="/recruitment" element={<AdminHRRoute><RecruitmentPage /></AdminHRRoute>} />
+          <Route path="/workforce" element={<AdminHRRoute><WorkforcePage /></AdminHRRoute>} />
           <Route path="/employees" element={<AdminHRRoute><EmployeeListPage /></AdminHRRoute>} />
           <Route path="/employees/:id" element={<AdminHRRoute><EmployeeDetailPage /></AdminHRRoute>} />
           <Route path="/employees/new" element={<AdminHRRoute><AddEmployeePage /></AdminHRRoute>} />
           <Route path="/departments" element={<AdminHRRoute><DepartmentsPage /></AdminHRRoute>} />
+          <Route path="/diversity" element={<AdminHRRoute><DiversityPage /></AdminHRRoute>} />
           <Route path="/attendance" element={<AttendancePage />} />
           <Route path="/performance" element={<AdminHRRoute><PerformancePage /></AdminHRRoute>} />
+          <Route path="/training" element={<TrainingPage />} />
+          <Route path="/surveys" element={<SurveysPage />} />
+          <Route path="/travels" element={<TravelsPage />} />
           <Route path="/ai-prediction" element={<AdminHRRoute><AIPredictionPage /></AdminHRRoute>} />
           <Route path="/analytics" element={<AnalyticsPage />} />
           <Route path="/reports" element={<AdminHRRoute><ReportsPage /></AdminHRRoute>} />
