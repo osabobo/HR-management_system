@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { BarChart, Bar, AreaChart, Area, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
+import type { PieLabelRenderProps } from 'recharts';
 import { FiMessageSquare, FiTrendingUp, FiUsers, FiStar, FiPlus, FiDownload } from 'react-icons/fi';
 import { mockSurveys, surveyResponsesByDept, engagementTrend, exitReasonsData } from '../../data/mockSurveys';
 import StatCard from '../../components/StatCard';
@@ -85,7 +86,7 @@ const SurveysPage: React.FC = () => {
           <h3 style={{ fontWeight: 700, fontSize: '.9rem', color: 'var(--text-primary)', marginBottom: 16 }}>Exit Survey: Leaving Reasons</h3>
           <ResponsiveContainer width="100%" height={200}>
             <PieChart>
-              <Pie data={exitReasonsData} dataKey="value" nameKey="reason" cx="50%" cy="50%" outerRadius={75} label={({ reason, percent }) => percent > 0.1 ? `${(percent * 100).toFixed(0)}%` : ''}>
+              <Pie data={exitReasonsData} dataKey="value" nameKey="reason" cx="50%" cy="50%" outerRadius={75} label={({ percent }: PieLabelRenderProps) => (percent ?? 0) > 0.1 ? `${((percent ?? 0) * 100).toFixed(0)}%` : ''}>
                 {exitReasonsData.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
               </Pie>
               <Tooltip />

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { BarChart, Bar, AreaChart, Area, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
+import type { PieLabelRenderProps } from 'recharts';
 import { FiBriefcase, FiUsers, FiClock, FiCheckCircle, FiPlus, FiDownload } from 'react-icons/fi';
 import { mockJobOpenings, mockApplicants, applicationsByMonth, hiringFunnelData, sourceBreakdown, timeToHireByDept } from '../../data/mockRecruitment';
 import type { JobOpening } from '../../data/mockRecruitment';
@@ -75,7 +76,7 @@ const RecruitmentPage: React.FC = () => {
           <h3 style={{ fontWeight: 700, fontSize: '.9rem', color: 'var(--text-primary)', marginBottom: 16 }}>Application Sources</h3>
           <ResponsiveContainer width="100%" height={200}>
             <PieChart>
-              <Pie data={sourceBreakdown} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={75} label={({ name, percent }: { name: string; percent?: number }) => `${name} ${((percent ?? 0) * 100).toFixed(0)}%`} labelLine={false}>
+              <Pie data={sourceBreakdown} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={75} label={({ name, percent }: PieLabelRenderProps) => `${name ?? ''} ${((percent ?? 0) * 100).toFixed(0)}%`} labelLine={false}>
                 {sourceBreakdown.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
               </Pie>
               <Tooltip />

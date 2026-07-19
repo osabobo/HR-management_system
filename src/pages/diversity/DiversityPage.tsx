@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { BarChart, Bar, AreaChart, Area, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
+import type { PieLabelRenderProps } from 'recharts';
 import { FiUsers, FiTrendingUp, FiMapPin, FiHeart } from 'react-icons/fi';
 import { genderByDept, ageGroupData, locationBreakdown, diversityTrend, employmentTypeData, diversitySummary } from '../../data/mockDiversity';
 import { mockEmployees } from '../../data/mockEmployees';
@@ -49,7 +50,7 @@ const DiversityPage: React.FC = () => {
           <h3 style={{ fontWeight: 700, fontSize: '.9rem', color: 'var(--text-primary)', marginBottom: 16 }}>Age Groups</h3>
           <ResponsiveContainer width="100%" height={220}>
             <PieChart>
-              <Pie data={ageGroupData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={80} label={({ name, percent }: { name: string; percent?: number }) => `${name}: ${((percent ?? 0) * 100).toFixed(0)}%`} labelLine={false}>
+              <Pie data={ageGroupData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={80} label={({ name, percent }: PieLabelRenderProps) => `${name ?? ''}: ${((percent ?? 0) * 100).toFixed(0)}%`} labelLine={false}>
                 {ageGroupData.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
               </Pie>
               <Tooltip />

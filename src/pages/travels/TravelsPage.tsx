@@ -62,7 +62,7 @@ const TravelsPage: React.FC = () => {
               <XAxis dataKey="month" tick={{ fontSize: 11 }} axisLine={false} tickLine={false} />
               <YAxis yAxisId="left" tick={{ fontSize: 9 }} axisLine={false} tickLine={false} tickFormatter={v => `₦${(v / 1000).toFixed(0)}k`} />
               <YAxis yAxisId="right" orientation="right" tick={{ fontSize: 10 }} axisLine={false} tickLine={false} />
-              <Tooltip formatter={(v: number, n: string) => n === 'Spend (₦)' ? `₦${v.toLocaleString()}` : v} />
+              <Tooltip formatter={(v: unknown, n: unknown) => n === 'Spend (₦)' ? `₦${Number(v).toLocaleString()}` : v as string} />
               <Legend />
               <Area yAxisId="left" type="monotone" dataKey="spend" stroke="#4f46e5" fill="url(#spendGrad)" strokeWidth={2.5} name="Spend (₦)" />
               <Bar yAxisId="right" dataKey="trips" fill="#10b981" radius={[4, 4, 0, 0]} name="Trips" />
@@ -77,7 +77,7 @@ const TravelsPage: React.FC = () => {
               <CartesianGrid strokeDasharray="3 3" stroke="rgba(148,163,184,.1)" />
               <XAxis type="number" tick={{ fontSize: 9 }} axisLine={false} tickLine={false} tickFormatter={v => `₦${(v / 1000).toFixed(0)}k`} />
               <YAxis type="category" dataKey="dept" tick={{ fontSize: 10 }} axisLine={false} tickLine={false} width={75} />
-              <Tooltip formatter={(v: number) => `₦${v.toLocaleString()}`} />
+              <Tooltip formatter={(v: unknown) => `₦${Number(v).toLocaleString()}`} />
               <Bar dataKey="spend" fill="#f59e0b" radius={[0, 4, 4, 0]} name="Spend" />
             </BarChart>
           </ResponsiveContainer>
@@ -146,7 +146,7 @@ const TravelsPage: React.FC = () => {
                 <p style={{ fontWeight: 700, fontSize: '.95rem', color: 'var(--text-primary)' }}>{viewRequest.employeeName}</p>
                 <p style={{ fontSize: '.8rem', color: 'var(--text-secondary)' }}>{viewRequest.department} · {viewRequest.employeeId}</p>
               </div>
-              <Badge variant={statusVariant(viewRequest.status)} style={{ marginLeft: 'auto' }}>{viewRequest.status}</Badge>
+              <div style={{ marginLeft: 'auto' }}><Badge variant={statusVariant(viewRequest.status)}>{viewRequest.status}</Badge></div>
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
               {[

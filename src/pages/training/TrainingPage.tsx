@@ -72,7 +72,7 @@ const TrainingPage: React.FC = () => {
               <YAxis type="category" dataKey="dept" tick={{ fontSize: 10 }} axisLine={false} tickLine={false} width={70} />
               <Tooltip />
               <Bar dataKey="rate" radius={[0, 4, 4, 0]} name="Completion %" fill="#10b981"
-                label={{ position: 'right', fontSize: 10, fill: 'var(--text-secondary)', formatter: (v: number) => `${v}%` }} />
+                label={{ position: 'right', fontSize: 10, fill: 'var(--text-secondary)', formatter: (v: unknown) => `${v}%` }} />
             </BarChart>
           </ResponsiveContainer>
         </div>
@@ -86,7 +86,7 @@ const TrainingPage: React.FC = () => {
             <PolarGrid stroke="rgba(148,163,184,.2)" />
             <PolarAngleAxis dataKey="skill" tick={{ fontSize: 12 }} />
             <Radar name="Skill Level" dataKey="level" stroke="#4f46e5" fill="#4f46e5" fillOpacity={0.2} strokeWidth={2} />
-            <Tooltip formatter={(v: number) => `${v}%`} />
+            <Tooltip formatter={(v: unknown) => `${v}%`} />
           </RadarChart>
         </ResponsiveContainer>
       </div>
