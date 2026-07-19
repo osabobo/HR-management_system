@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { motion } from 'framer-motion';
 import { BarChart, Bar, AreaChart, Area, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { FiMessageSquare, FiTrendingUp, FiUsers, FiStar, FiPlus, FiDownload } from 'react-icons/fi';
@@ -14,7 +14,6 @@ const statusVariant = (s: string): 'success' | 'warning' | 'gray' =>
   s === 'Active' ? 'warning' : s === 'Closed' ? 'success' : 'gray';
 
 const SurveysPage: React.FC = () => {
-  const closed = mockSurveys.filter(s => s.status === 'Closed');
   const avgEngagement = Math.round(surveyResponsesByDept.reduce((s, d) => s + d.engagementScore, 0) / surveyResponsesByDept.length);
   const avgSatisfaction = Math.round(surveyResponsesByDept.reduce((s, d) => s + d.satisfactionScore, 0) / surveyResponsesByDept.length);
   const avgResponseRate = Math.round(surveyResponsesByDept.reduce((s, d) => s + d.responseRate, 0) / surveyResponsesByDept.length);

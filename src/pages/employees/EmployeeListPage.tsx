@@ -22,7 +22,6 @@ const statusVariant = (s: string): 'success' | 'warning' | 'danger' | 'gray' =>
 const EmployeeListPage: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const isEmployee = user?.role === 'Employee';
   const isViewOnly = user?.role !== 'Administrator';
   const [employees, setEmployees] = useState<Employee[]>(initialEmployees);
   const [search, setSearch] = useState('');
