@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { BarChart, Bar, AreaChart, Area, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
-import { FiUsers, FiTrendingUp, FiMapPin, FiDownload, FiSearch } from 'react-icons/fi';
+import { FiUsers, FiTrendingUp, FiMapPin, FiDownload } from 'react-icons/fi';
 import { mockWorkforce, headcountByDept, salaryBandData, tenureDistribution, turnoverTrend } from '../../data/mockWorkforce';
 import StatCard from '../../components/StatCard';
 import Badge from '../../components/Badge';
@@ -78,7 +78,7 @@ const WorkforcePage: React.FC = () => {
           <h3 style={{ fontWeight: 700, fontSize: '.9rem', color: 'var(--text-primary)', marginBottom: 16 }}>Tenure Distribution</h3>
           <ResponsiveContainer width="100%" height={180}>
             <PieChart>
-              <Pie data={tenureDistribution} dataKey="count" nameKey="range" cx="50%" cy="50%" outerRadius={75} label={({ range, percent }) => `${range} ${(percent * 100).toFixed(0)}%`} labelLine={false}>
+              <Pie data={tenureDistribution} dataKey="count" nameKey="range" cx="50%" cy="50%" outerRadius={75} label={({ name, percent }: { name?: string; percent?: number }) => `${name ?? ''} ${((percent ?? 0) * 100).toFixed(0)}%`} labelLine={false}>
                 {tenureDistribution.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
               </Pie>
               <Tooltip />
