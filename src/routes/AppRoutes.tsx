@@ -32,6 +32,11 @@ const PublicRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   return !isAuthenticated ? <>{children}</> : <Navigate to="/dashboard" replace />;
 };
 
+const AdminHRRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { user } = useAuth();
+  return user?.role !== 'Employee' ? <>{children}</> : <Navigate to="/dashboard" replace />;
+};
+
 const AppRoutes: React.FC = () => {
   return (
     <BrowserRouter>
@@ -46,15 +51,15 @@ const AppRoutes: React.FC = () => {
         {/* App routes */}
         <Route element={<ProtectedRoute><MainLayout /></ProtectedRoute>}>
           <Route path="/dashboard" element={<DashboardPage />} />
-          <Route path="/employees" element={<EmployeeListPage />} />
-          <Route path="/employees/:id" element={<EmployeeDetailPage />} />
-          <Route path="/employees/new" element={<AddEmployeePage />} />
-          <Route path="/departments" element={<DepartmentsPage />} />
+          <Route path="/employees" element={<AdminHRRoute><EmployeeListPage /></AdminHRRoute>} />
+          <Route path="/employees/:id" element={<AdminHRRoute><EmployeeDetailPage /></AdminHRRoute>} />
+          <Route path="/employees/new" element={<AdminHRRoute><AddEmployeePage /></AdminHRRoute>} />
+          <Route path="/departments" element={<AdminHRRoute><DepartmentsPage /></AdminHRRoute>} />
           <Route path="/attendance" element={<AttendancePage />} />
-          <Route path="/performance" element={<PerformancePage />} />
-          <Route path="/ai-prediction" element={<AIPredictionPage />} />
+          <Route path="/performance" element={<AdminHRRoute><PerformancePage /></AdminHRRoute>} />
+          <Route path="/ai-prediction" element={<AdminHRRoute><AIPredictionPage /></AdminHRRoute>} />
           <Route path="/analytics" element={<AnalyticsPage />} />
-          <Route path="/reports" element={<ReportsPage />} />
+          <Route path="/reports" element={<AdminHRRoute><ReportsPage /></AdminHRRoute>} />
           <Route path="/notifications" element={<NotificationsPage />} />
           <Route path="/settings" element={<SettingsPage />} />
           <Route path="*" element={<Navigate to="/dashboard" replace />} />

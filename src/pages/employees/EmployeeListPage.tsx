@@ -12,6 +12,7 @@ import Pagination from '../../components/Pagination';
 import Modal from '../../components/Modal';
 import EmptyState from '../../components/EmptyState';
 import toast from 'react-hot-toast';
+import { useAuth } from '../../context/AuthContext';
 
 const ITEMS_PER_PAGE = 8;
 
@@ -20,6 +21,8 @@ const statusVariant = (s: string): 'success' | 'warning' | 'danger' | 'gray' =>
 
 const EmployeeListPage: React.FC = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const isEmployee = user?.role === 'Employee';
   const [employees, setEmployees] = useState<Employee[]>(initialEmployees);
   const [search, setSearch] = useState('');
   const [deptFilter, setDeptFilter] = useState('All');
@@ -78,9 +81,11 @@ const EmployeeListPage: React.FC = () => {
           <button className="btn btn-outline btn-sm" onClick={() => toast('Export started (mock)', { icon: '📥' })}>
             <FiDownload size={14} /> Export
           </button>
-          <button className="btn btn-primary" onClick={() => navigate('/employees/new')}>
-            <FiPlus size={16} /> Add Employee
-          </button>
+          {!isEmployee && (
+            <button className="btn btn-primary" onClick={() => navigate('/employees/new')}>
+              <FiPlus size={16} /> Add Employee
+            </button>
+          )}
         </div>
       </div>
 

@@ -63,12 +63,13 @@ const DashboardPage: React.FC = () => {
 
   const upcomingReviews = mockPerformance.filter(p => p.status === 'Pending').slice(0, 3);
 
-  const quickActions = [
-    { label: 'Add Employee', icon: FiUserPlus, path: '/employees/new', color: '#4f46e5' },
-    { label: 'Run AI Prediction', icon: FiCpu, path: '/ai-prediction', color: '#06b6d4' },
-    { label: 'View Attendance', icon: FiCalendar, path: '/attendance', color: '#10b981' },
-    { label: 'Generate Report', icon: FiTrendingUp, path: '/reports', color: '#f59e0b' },
+  const allQuickActions = [
+    { label: 'Add Employee', icon: FiUserPlus, path: '/employees/new', color: '#4f46e5', adminOnly: true },
+    { label: 'Run AI Prediction', icon: FiCpu, path: '/ai-prediction', color: '#06b6d4', adminOnly: true },
+    { label: 'View Attendance', icon: FiCalendar, path: '/attendance', color: '#10b981', adminOnly: false },
+    { label: 'Generate Report', icon: FiTrendingUp, path: '/reports', color: '#f59e0b', adminOnly: true },
   ];
+  const quickActions = allQuickActions.filter(a => !(a.adminOnly && user?.role === 'Employee'));
 
   if (loading) {
     return (

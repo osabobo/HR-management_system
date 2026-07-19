@@ -11,6 +11,7 @@ import Avatar from '../../components/Avatar';
 import toast from 'react-hot-toast';
 import { checkHealth } from '../../services/predictions';
 import { predictionService } from '../../services/api';
+import { useAuth } from '../../context/AuthContext';
 
 const predictionColor = (p: string) => p === 'High Performer' ? '#10b981' : p === 'Medium Performer' ? '#f59e0b' : '#ef4444';
 const predictionVariant = (p: string): 'success' | 'warning' | 'danger' => p === 'High Performer' ? 'success' : p === 'Medium Performer' ? 'warning' : 'danger';
@@ -47,6 +48,8 @@ const buildDefaultPrediction = (emp: Employee): AIPrediction => {
 };
 
 const AIPredictionPage: React.FC = () => {
+  const { user } = useAuth();
+  const isEmployee = user?.role === 'Employee';
   const [predictions, setPredictions] = useState<AIPrediction[]>(mockPredictions);
   const [selected, setSelected] = useState<AIPrediction>(mockPredictions[0]);
   const [running, setRunning] = useState(false);
@@ -426,13 +429,17 @@ const AIPredictionPage: React.FC = () => {
               style={{ width: '100%', accentColor: '#4f46e5' }} />
           </div>
         ))}
-        <button className="btn btn-primary" style={{ width: '100%', marginTop: 8 }} onClick={runPrediction} disabled={running}>
+        <button className="btn btn-primary" style={{ width: '100%', marginTop: 8 }} onClick={runPrediction} disabled={running || isEmployee}>
           {running ? (
             <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
               <span style={{ width: 14, height: 14, border: '2px solid rgba(255,255,255,.3)', borderTopColor: '#fff', borderRadius: '50%', display: 'inline-block', animation: 'spin 1s linear infinite' }} />
               Running AI Model…
             </span>
-          ) : <><FiZap size={15} /> Run Prediction</>}
+          ) : isEmployee ? (
+            <><FiZap size={15} /> Access Restricted</>
+          ) : (
+            <><FiZap size={15} /> Run Prediction</>
+          )}
         </button>
       </div>
     </motion.div>

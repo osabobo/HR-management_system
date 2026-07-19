@@ -12,13 +12,13 @@ import toast from 'react-hot-toast';
 
 const navItems = [
   { path: '/dashboard',    label: 'Dashboard',      icon: FiGrid },
-  { path: '/employees',    label: 'Employees',      icon: FiUsers },
-  { path: '/departments',  label: 'Departments',    icon: FiBriefcase },
+  { path: '/employees',    label: 'Employees',      icon: FiUsers,    adminOnly: true },
+  { path: '/departments',  label: 'Departments',    icon: FiBriefcase,adminOnly: true },
   { path: '/attendance',   label: 'Attendance',     icon: FiCalendar },
-  { path: '/performance',  label: 'Performance',    icon: FiAward },
-  { path: '/ai-prediction',label: 'AI Prediction',  icon: FiCpu },
+  { path: '/performance',  label: 'Performance',    icon: FiAward,    adminOnly: true },
+  { path: '/ai-prediction',label: 'AI Prediction',  icon: FiCpu,      adminOnly: true },
   { path: '/analytics',    label: 'Analytics',      icon: FiBarChart2 },
-  { path: '/reports',      label: 'Reports',        icon: FiFileText },
+  { path: '/reports',      label: 'Reports',        icon: FiFileText, adminOnly: true },
   { path: '/notifications',label: 'Notifications',  icon: FiBell },
   { path: '/settings',     label: 'Settings',       icon: FiSettings },
 ];
@@ -89,7 +89,7 @@ const Sidebar: React.FC = () => {
 
       {/* Nav Items */}
       <nav style={{ flex: 1, overflowY: 'auto', padding: '12px 10px', display: 'flex', flexDirection: 'column', gap: 3 }}>
-        {navItems.map(({ path, label, icon: Icon }) => (
+        {navItems.filter(item => !(item.adminOnly && user?.role === 'Employee')).map(({ path, label, icon: Icon }) => (
           <NavLink
             key={path}
             to={path}
